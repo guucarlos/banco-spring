@@ -39,7 +39,7 @@ public class Conta {
     private BigDecimal saldo;
 
     @Column(nullable = false)
-    private boolean ativa;
+    private Boolean ativa;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cliente_id", nullable = false)
