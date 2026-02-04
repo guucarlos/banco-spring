@@ -7,6 +7,7 @@ import com.banco.banking.repository.ClienteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 @Service
 @RequiredArgsConstructor
@@ -27,4 +28,9 @@ public class ClienteService {
         return clienteRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado"));
     }
+
+    public List<Cliente> listarTodos() {
+        return clienteRepository.findAll();
+    }
+
 }
