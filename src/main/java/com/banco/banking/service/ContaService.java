@@ -2,12 +2,16 @@ package com.banco.banking.service;
 
 import com.banco.banking.domain.Cliente;
 import com.banco.banking.domain.Conta;
+import com.banco.banking.domain.TipoTransacao;
+import com.banco.banking.domain.Transacao;
 import com.banco.banking.exception.BusinessException;
 import com.banco.banking.exception.ResourceNotFoundException;
 import com.banco.banking.repository.ClienteRepository;
 import com.banco.banking.repository.ContaRepository;
+import com.banco.banking.repository.TransacaoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -18,6 +22,7 @@ public class ContaService {
 
     private final ContaRepository contaRepository;
     private final ClienteRepository clienteRepository;
+    private final TransacaoRepository transacaoRepository;
 
     /**
      * Regra: abrir conta para um cliente existente
@@ -53,9 +58,19 @@ public class ContaService {
         }
 
         Conta conta = buscarContaAtiva(numeroConta);
-
         conta.setSaldo(conta.getSaldo().add(valor));
-        return contaRepository.save(conta);
+
+        Conta contaSalva = contaRepository.save(conta);
+
+        Transacao transacao = Transacao.builder()
+                .valor(valor)
+                .tipo(TipoTransacao.DEPOSITO)
+                .contaDestino(contaSalva)
+                .build();
+
+        transacaoRepository.save(transacao);
+
+        return contaSalva;
     }
 
     /**
@@ -74,7 +89,17 @@ public class ContaService {
         }
 
         conta.setSaldo(conta.getSaldo().subtract(valor));
-        return contaRepository.save(conta);
+        Conta contaSalva = contaRepository.save(conta);
+
+        Transacao transacao = Transacao.builder()
+                .valor(valor)
+                .tipo(TipoTransacao.SAQUE)
+                .contaOrigem(contaSalva)
+                .build();
+
+        transacaoRepository.save(transacao);
+
+        return contaSalva;
     }
 
     private Conta buscarContaAtiva(String numeroConta) {
@@ -84,5 +109,37 @@ public class ContaService {
             throw new BusinessException("Conta está inativa");
         }
         return conta;
+    }
+
+    @Transactional
+    public void transferir(String contaOrigemNumero,
+                           String contaDestinoNumero,
+                           BigDecimal valor) {
+
+        if (valor.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BusinessException("Valor da transferência deve ser maior que zero");
+        }
+
+        Conta origem = buscarContaAtiva(contaOrigemNumero);
+        Conta destino = buscarContaAtiva(contaDestinoNumero);
+
+        if (origem.getSaldo().compareTo(valor) < 0) {
+            throw new BusinessException("Saldo insuficiente para transferência");
+        }
+
+        origem.setSaldo(origem.getSaldo().subtract(valor));
+        destino.setSaldo(destino.getSaldo().add(valor));
+
+        contaRepository.save(origem);
+        contaRepository.save(destino);
+
+        Transacao transacao = Transacao.builder()
+                .valor(valor)
+                .tipo(TipoTransacao.TRANSFERENCIA)
+                .contaOrigem(origem)
+                .contaDestino(destino)
+                .build();
+
+        transacaoRepository.save(transacao);
     }
 }
