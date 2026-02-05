@@ -1,14 +1,11 @@
 package com.banco.banking.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.UUID;
 
 public record AbrirContaRequest(
-
-        UUID clienteId,
-
-        @NotBlank(message = "Número da conta é obrigatório")
-        String numeroConta
-) {
-}
+        @NotNull UUID clientId,
+        @NotBlank String numeroConta
+) {}

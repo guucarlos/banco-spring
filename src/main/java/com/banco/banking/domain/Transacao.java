@@ -50,12 +50,12 @@ public class Transacao {
     @JoinColumn(name = "conta_destino_id")
     private Conta contaDestino;
 
-    @Column(nullable = false)
+    @Column(name = "data_criacao", nullable = false)
     private LocalDateTime dataCriacao;
 
 
     @PrePersist
     public void prePersist(){
-        this.dataCriacao = dataCriacao;
+        this.dataCriacao = LocalDateTime.now();
     }
 }
