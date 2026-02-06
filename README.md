@@ -1,20 +1,24 @@
-# Core Banking API
+# Banking API
 
-API backend desenvolvida em Java 21 com Spring Boot, simulando um sistema bancário
-para gerenciamento de clientes, contas e transações financeiras.
+API REST para simulação de operações bancárias.
 
-## 🛠️ Tecnologias
+## Funcionalidades
+- Cadastro de clientes
+- Abertura de contas
+- Depósito
+- Saque
+- Transferência entre contas
+
+## Tecnologias
 - Java 21
 - Spring Boot
-- Spring Data JPA
-- PostgreSQL
 - Maven
-- Docker
-- GitHub Actions (CI/CD)
+- JUnit 5
+- Mockito
 
-## 📦 Arquitetura
-Projeto estruturado em camadas (Controller, Service, Repository), seguindo boas
-práticas de mercado.
+## Testes
+- Testes unitários para regras de negócio
+- Cobertura de serviços (ClienteService e ContaService)
 
-## 🚀 Status
-Projeto em desenvolvimento.
+## Como executar
+./mvnw spring-boot:run
